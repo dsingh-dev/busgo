@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User { 
+  id    Int     @id @default(autoincrement()) 
+  name  String?
+  email String  @unique
+  password String?
+  role    UserRole @default(USER)
+  createdAt DateTime @default(now())
+
+  bookings  Booking[]
+} 
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model City {
+  id        Int     @id @default(autoincrement())
+  name      String
+  state     String?
+
+  busesFrom Bus[] @relation("FromCity")
+  busesTo   Bus[] @relation("ToCity")
+}
+
+model Bus { 
+  id        Int     @id @default(autoincrement()) 
+  name      String?
+  type      BusType @default(NONAC)
+  fromCityId  Int
+  toCityId    Int
+  departure DateTime?
+  arrival   DateTime?
+  duration  DateTime?
+  price     Float @default(0.0)
+  totalSeats  Int?
+  amenities    BusAmenity[]
+  rating    Float @default(0.0)
+  bookedSeats Int?
+
+  bookings  Booking[]
+
+  fromCity    City @relation("FromCity", fields: [fromCityId], references: [id])
+  toCity      City @relation("ToCity", fields: [toCityId], references: [id])
+} 
+
+model Booking {
+  id        Int     @id @default(autoincrement()) 
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  busId     Int
+  bus       Bus     @relation(fields: [busId], references: [id])
+  seats     Int[]
+  passengerName        String?
+  passengerEmail String?
+  passengerPhone   String?
+  travelDate  DateTime?
+  totalFare     Float @default(0.0)
+  status  BookingStatus  @default(PENDING)
+  createdAt DateTime @default(now())
+
+  @@index(fields: [userId, busId])
+}
+
+model Amenity {
+  id    Int    @id @default(autoincrement())
+  name  String  @unique // WIFI, CHARGING_PORT, BLANKET, WATER, LUNCH
+
+  buses BusAmenity[]
+}
+
+model BusAmenity {
+  busId      Int
+  amenityId  Int
+
+  bus        Bus     @relation(fields: [busId], references: [id])
+  amenity    Amenity @relation(fields: [amenityId], references: [id])
+
+  @@id([busId, amenityId])
+}
+
+enum BusType {
+  NONAC
+  AC
+  SEATER
+  SLEEPER
+  SEATERAC
+  SLEEPERAC
+}
+
+enum BookingStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
