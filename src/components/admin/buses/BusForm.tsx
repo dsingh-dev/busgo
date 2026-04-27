@@ -4,10 +4,10 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGr
 import { BUS_TYPE_OPTIONS, BusTypeType } from "@/lib/enums";
 import { SaveIcon } from "lucide-react";
 import { useState, useEffect } from "react";
-import CitiesDropdown from "./CitiesDropdown";
 import { useToast } from "@/hooks/use-toast";
 import BusAmenitiesCheckbox from "./BusAmenitiesCheckbox";
 import { DateTimePicker } from "@/components/ui/dateTimePicker";
+import CitiesDropdown from "@/components/CitiesDropdown";
 
 interface Amenities {
     amenityId: number;

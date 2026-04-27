@@ -67,6 +67,7 @@ export const DateTimePicker = ({
   minDate = null,
   placeholder = "Select departure date & time",
   label = null,
+  timer = true,
 }) => {
   const today = new Date();
 
@@ -113,7 +114,9 @@ export const DateTimePicker = ({
   // ── helpers
   const buildDate = (d = selDate, h = hours, m = minutes, s = seconds) => {
     if (!d) return null;
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m, s);
+    return timer
+    ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m, s)
+    : new Date(d.getFullYear(), d.getMonth(), d.getDate());
   };
 
   const prevMonth = () => {
@@ -160,11 +163,22 @@ export const DateTimePicker = ({
   };
 
   const humanDisplay = value
-    ? value.toLocaleString("en-IN", {
-        day: "2-digit", month: "short", year: "numeric",
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
-      })
+    ? value.toLocaleString("en-IN", timer
+        ? {
+            day: "2-digit", month: "short", year: "numeric",
+            hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
+          }
+        : {
+            day: "2-digit", month: "short", year: "numeric",
+          }
+      )
     : "";
+
+    useEffect(() => {
+      if (!timer && view === "time") {
+        setView("calendar");
+      }
+    }, [timer, view]);
 
   // ── render
   return (
@@ -199,7 +213,7 @@ export const DateTimePicker = ({
 
           {/* ── Tabs */}
           <div className="flex border-b border-white/10">
-            {["calendar", "time"].map((v) => (
+            {["calendar", ...(timer ? ["time"] : [])].map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
@@ -283,7 +297,7 @@ export const DateTimePicker = ({
             </>
           )}
 
-          {view === "time" && (
+          {timer && view === "time" && (
             <div className="flex items-center justify-center gap-2 py-4 px-4">
               <TimeScroll value={hours}   max={23} onChange={setHours}   label="HH" />
               <span className="text-amber-400 text-xl font-mono mt-3">:</span>
@@ -296,7 +310,7 @@ export const DateTimePicker = ({
           {/* ── DB format preview */}
           {selDate && (
             <div className="text-center text-[11px] text-slate-600 font-mono tracking-wide pb-1">
-              {toDBFormat(buildDate())}
+             {toDBFormat(buildDate(selDate))}
             </div>
           )}
 
