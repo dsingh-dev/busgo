@@ -1,3 +1,4 @@
+import { Prisma } from '../../generated/prisma/client';
 import { BusType } from '../../generated/prisma/enums';
 import { prisma } from '../lib/prisma';
 import { busResource } from '../resources/bus.resource';
@@ -13,8 +14,18 @@ export interface Bus {
     arrival: Date;
     amenities: number[];
 }
+export interface RequestQuery {
+  page?: number;
+  limit?: number;
+  from?: number;
+  to?: number;
+  date?: string;
+  name?: string;
+  sortField?: "name" | "price" | "departure" | "arrival";
+  sortOrder?: "asc" | "desc";
+}
 
-export const index = async (query: any) => {
+export const index = async (query: RequestQuery) => {
     const {
       page = 1,
       limit = 10,
@@ -28,7 +39,7 @@ export const index = async (query: any) => {
     
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: any = {};
+    const where: Prisma.BusWhereInput = {};
     
     if (from) where.fromCityId = Number(from);
     if (to) where.toCityId = Number(to);
@@ -55,7 +66,7 @@ export const index = async (query: any) => {
 
     const allowedSortFields = ["name", "price", "departure", "arrival"];
 
-    let orderBy: object = { id: "desc" };
+    let orderBy: Prisma.BusOrderByWithRelationInput = { id: "desc" };
 
     if (
       sortField &&

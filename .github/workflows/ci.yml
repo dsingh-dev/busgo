@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22.12
 
       # Frontend
       - name: Install frontend deps
@@ -34,6 +34,11 @@ jobs:
         run: |
           cd backend
           npm install
+
+      - name: Generate Prisma Client
+        run: |
+          cd backend
+          npx prisma generate
 
       - name: Build backend
         run: |
