@@ -6,15 +6,12 @@ import {
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import CitiesDropdown from "./CitiesDropdown";
-import { DateTimePicker } from "@/components/ui/dateTimePicker";
+import CitiesDropdown from "@/components/CitiesDropdown";
 
 export default function BusFilter({ onChange }) {
   const [filters, setFilters] = useState({
     from: null,
     to: null,
-    departure: null,
-    arrival: null
   });
 
   const update = (key, value) => {
