@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BusList from "@/components/admin/buses/BusList";
 import BusFormModal from "@/components/admin/buses/BusForm";
 import { Button } from "@/components/ui/button";
@@ -39,63 +39,75 @@ const BusesPage = () => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 400);
 
-  const fetchBuses = async (filtersParam = filters, page = meta.page) => {
-    const params = new URLSearchParams();
+  const fetchBuses = useCallback(
+    async (filtersParam?: typeof filters, pageParam?: number) => {
+      const f = filtersParam ?? filters;
+      const p = pageParam ?? meta.page;
 
-    if (filtersParam.name)
-      params.append("name", filtersParam.name);
-
-    if (filtersParam.from)
-      params.append("from", filtersParam.from);
-
-    if (filtersParam.to)
-      params.append("to", filtersParam.to);
-
-    if (filtersParam.departure)
-      params.append(
-        "date",
-        filtersParam.departure.toISOString()
-      );
-
-    if (sort.field && sort.order) {
-      params.append("sortField", sort.field);
-      params.append("sortOrder", sort.order);
-    }
-
-    params.append("page", String(page));
-    params.append("limit", "10");
-
-    try {
-      setLoading(true);
-
-      const res = await fetch(`/api/admin/buses?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("bus_admin_token")}`,
-        },
-      });
-      const data = await res.json();
-
-      setBuses(data.data);
-      setMeta(data.meta);
-    } catch (err) {
-      toast({
-        title: "Something is wrong",
-        description: err instanceof Error ? err.message : "Try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-      setSearchLoading(false);
-    }
-  };
+      const params = new URLSearchParams();
+  
+      if (f.name)
+        params.append("name", f.name);
+  
+      if (f.from)
+        params.append("from", f.from);
+  
+      if (f.to)
+        params.append("to", f.to);
+  
+      if (f.departure)
+        params.append(
+          "date",
+          f.departure.toISOString()
+        );
+  
+      if (sort.field && sort.order) {
+        params.append("sortField", sort.field);
+        params.append("sortOrder", sort.order);
+      }
+  
+      params.append("page", String(p));
+      params.append("limit", "10");
+  
+      try {
+        setLoading(true);
+  
+        const res = await fetch(
+          `/api/admin/buses?${params.toString()}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem(
+                "bus_admin_token"
+              )}`,
+            },
+          }
+        );
+  
+        const data = await res.json();
+  
+        setBuses(data.data);
+        setMeta(data.meta);
+      } catch (err) {
+        toast({
+          title: "Something is wrong",
+          description:
+            err instanceof Error ? err.message : "Try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+        setSearchLoading(false);
+      }
+    },
+    [filters, meta.page, sort]
+  );
 
   useEffect(() => {
     fetchBuses({
       ...debouncedFilters,
       name: debouncedSearch,
-      page: 1
-    });
-  }, [debouncedFilters, debouncedSearch, sort]);
+    }, 1);
+  }, [debouncedFilters, debouncedSearch, sort, fetchBuses]);
   
   const handleClose = () => {
     setOpen(false);

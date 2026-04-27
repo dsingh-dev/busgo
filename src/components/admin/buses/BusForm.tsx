@@ -40,7 +40,7 @@ interface BusFormState {
   totalSeats: number;
   departure: Date | null;
   arrival: Date | null;
-  amenities?: { amenityId: number }[];
+  amenities?: number[];
 }
 
 const inputCls =
@@ -72,17 +72,21 @@ const BusFormModal = ({ open, onClose, bus, onSuccess }: BusFormModalProps) => {
     setForm(prev => ({ ...prev, [key]: value }));
   };
 
+  const mapBusToForm = (bus: BusFormModalProps["bus"]): BusFormState => ({
+    name: bus.name,
+    fromCityId: bus.fromCityId ?? null,
+    toCityId: bus.toCityId ?? null,
+    price: bus.price,
+    type: bus.type,
+    totalSeats: bus.totalSeats,
+    departure: bus.departure ? new Date(bus.departure) : null,
+    arrival: bus.arrival ? new Date(bus.arrival) : null,
+    amenities: bus.amenities?.map(a => a.amenityId) ?? [],
+  });
+
   useEffect(() => {
     if (bus) {
-      setForm({
-        ...bus,
-        departure: bus.departure ? new Date(bus.departure) : null,
-        arrival: bus.arrival ? new Date(bus.arrival) : null,
-  
-        amenities: bus.amenities?.map((a: any) =>
-          a.amenityId ?? a.id
-        ) || []
-      });
+      setForm(mapBusToForm(bus));
     } else {
       setForm(getInitialState());
     }
