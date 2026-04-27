@@ -15,7 +15,6 @@ yarn-error.log*
 
 # Env files (IMPORTANT)
 .env
-.env.*
 backend/.env
 
 # OS files
