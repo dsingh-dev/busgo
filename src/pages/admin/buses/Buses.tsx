@@ -13,6 +13,7 @@ import BusFilter from "@/components/admin/buses/BusFilter";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/hooks/use-toast";
 import AdminPagination from "@/components/layout/AdminPagination";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const BusesPage = () => {
   const [loading, setLoading] = useState(true);
@@ -182,42 +183,43 @@ const BusesPage = () => {
           />  
         </DialogContent>  
       </Dialog>
-
-      <Table>
-      <TableHeader>
-        <TableRow>
-            <TableHead onClick={() => handleSort("name")} className="cursor-pointer">
-              Name {sort.field === "name" ? (sort.order === "asc" ? "↑" : "↓") : ""}
-            </TableHead>
-            <TableHead>Route</TableHead>
-            <TableHead onClick={() => handleSort("departure")} className="cursor-pointer">
-              Departure {sort.field === "departure" ? (sort.order === "asc" ? "↑" : "↓") : ""}
-            </TableHead>
-            <TableHead onClick={() => handleSort("arrival")} className="cursor-pointer">
-              Arrival {sort.field === "arrival" ? (sort.order === "asc" ? "↑" : "↓") : ""}
-            </TableHead>
-            <TableHead onClick={() => handleSort("price")} className="cursor-pointer">
-              Price {sort.field === "price" ? (sort.order === "asc" ? "↑" : "↓") : ""}
-            </TableHead>
-            <TableHead>Seats</TableHead>
-            <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-      {loading ? (
-        <TableSkeleton className="mt-2" />
-      ) : (
-          <BusList
-            buses={buses}
-            onEdit={(bus) => {
-              setSelectedBus(bus);
-              setOpen(true);
-            }}
-            onDelete={fetchBuses}
-          />
-      )}
-      </TableBody>
-      </Table>
+      <div className="max-h-[450px] overflow-y-auto">
+        <Table>
+        <TableHeader>
+          <TableRow>
+              <TableHead onClick={() => handleSort("name")} className="cursor-pointer">
+                Name {sort.field === "name" ? (sort.order === "asc" ? "↑" : "↓") : ""}
+              </TableHead>
+              <TableHead>Route</TableHead>
+              <TableHead onClick={() => handleSort("departure")} className="cursor-pointer">
+                Departure {sort.field === "departure" ? (sort.order === "asc" ? "↑" : "↓") : ""}
+              </TableHead>
+              <TableHead onClick={() => handleSort("arrival")} className="cursor-pointer">
+                Arrival {sort.field === "arrival" ? (sort.order === "asc" ? "↑" : "↓") : ""}
+              </TableHead>
+              <TableHead onClick={() => handleSort("price")} className="cursor-pointer">
+                Price {sort.field === "price" ? (sort.order === "asc" ? "↑" : "↓") : ""}
+              </TableHead>
+              <TableHead>Seats</TableHead>
+              <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+        {loading ? (
+          <TableSkeleton className="mt-2" />
+        ) : (
+            <BusList
+              buses={buses}
+              onEdit={(bus) => {
+                setSelectedBus(bus);
+                setOpen(true);
+              }}
+              onDelete={fetchBuses}
+            />
+        )}
+        </TableBody>
+        </Table>
+      </div>
       {!loading ? (
         <div className="mt-4 flex justify-end items-center">
         <AdminPagination 
