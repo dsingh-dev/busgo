@@ -1,33 +1,72 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { searchBuses } from "@/data/mockData";
+import { Bus, searchBuses } from "@/data/mockData";
 import { useBooking } from "@/context/BookingContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, MapPin, Star, Users, Wifi, BatteryCharging, Bus as BusIcon } from "lucide-react";
+import { Clock, MapPin, Star, Users, Wifi, BatteryCharging, Bus as BusIcon, Tv, CookingPot, PillBottle, WifiIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { formatDate } from "@/lib/dateTime";
+import { useCities } from "@/hooks/use-cities";
+import BlanketIcon from "@/components/icons/BlanketIcon";
 
 const amenityIcons: Record<string, React.ReactNode> = {
-  WiFi: <Wifi className="h-3.5 w-3.5" />,
-  "Charging Port": <BatteryCharging className="h-3.5 w-3.5" />,
+  "WIFI": <WifiIcon className="h-3.5 w-3.5" />,
+  "CHARGING_PORT": <BatteryCharging className="h-3.5 w-3.5" />,
+  "BLANKET": <BlanketIcon className="h-3.5 w-3.5" />,
+  "WATER_BOTTLE": <PillBottle className="h-3.5 w-3.5" />,
+  "MEAL": <CookingPot className="h-3.5 w-3.5" />,
+  "TV": <Tv className="h-3.5 w-3.5" />,
 };
 
 export default function BusListing() {
   const [params] = useSearchParams();
-  const from = params.get("from") || "";
-  const to = params.get("to") || "";
+  const from = params.get("from") || undefined;
+  const to = params.get("to") || undefined;
   const date = params.get("date") || "";
   const navigate = useNavigate();
   const { setBus } = useBooking();
+  const [loading, setLoading] = useState(false);
+  const [buses, setBuses] = useState([]);
+  const { data: cities } = useCities();
 
-  const buses = from && to ? searchBuses(from, to) : [];
+  const handleSearchBuses = async ({from, to}) => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `/api/auth/buses?from=${from}&to=${to}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(
+              "bus_user_token"
+            )}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setBuses(data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (from && to) {
+      handleSearchBuses({ from: Number(from), to: Number(to) });
+    }
+  }, [from, to]);
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6">
         <h1 className="font-display text-2xl font-bold text-foreground">
-          {from} → {to}
-        </h1>
+          {cities?.find(c => c.id === Number(from))?.name} → {cities?.find(c => c.id === Number(to))?.name}
+        </h1> 
         <p className="text-sm text-muted-foreground">{date} · {buses.length} buses found</p>
       </div>
 
@@ -59,24 +98,24 @@ export default function BusListing() {
                       </div>
                       <div className="mt-3 flex items-center gap-4 text-sm">
                         <div className="text-center">
-                          <p className="font-display text-lg font-bold text-foreground">{bus.departureTime}</p>
-                          <p className="text-xs text-muted-foreground">{from}</p>
+                          <p className="font-display text-lg font-bold text-foreground">{formatDate(bus.departure)}</p>
+                          <p className="text-xs text-muted-foreground">{bus.fromCity.name}</p>
                         </div>
                         <div className="flex flex-1 flex-col items-center">
-                          <span className="text-xs text-muted-foreground">{bus.duration}</span>
+                          <span className="text-xs text-muted-foreground">- - -</span>
                           <div className="mt-1 h-px w-full bg-border" />
                         </div>
                         <div className="text-center">
-                          <p className="font-display text-lg font-bold text-foreground">{bus.arrivalTime}</p>
-                          <p className="text-xs text-muted-foreground">{to}</p>
+                          <p className="font-display text-lg font-bold text-foreground">{formatDate(bus.arrival)}</p>
+                          <p className="text-xs text-muted-foreground">{bus.toCity.name}</p>
                         </div>
                       </div>
                       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-accent" /> {bus.rating}</span>
                         <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {bus.availableSeats} seats</span>
-                        {bus.amenities.slice(0, 3).map((a) => (
-                          <span key={a} className="flex items-center gap-1">
-                            {amenityIcons[a] || <Clock className="h-3.5 w-3.5" />} {a}
+                        {bus.amenities.slice(0, 6).map((a) => (
+                          <span key={a.id} className="flex items-center gap-1">
+                            {amenityIcons[a.name] || ""} {a.name}
                           </span>
                         ))}
                       </div>

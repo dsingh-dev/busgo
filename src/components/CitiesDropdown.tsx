@@ -37,13 +37,11 @@ export default function CitiesDropdown({
 
     const delay = setTimeout(async () => {
       try {
-        const token = localStorage.getItem("bus_admin_token");
         const res   = await fetch(
-          `/api/admin/cities?search=${encodeURIComponent(search.trim())}`,
+          `/api/cities?search=${encodeURIComponent(search.trim())}`,
           {
             headers: {
               "Content-Type": "application/json",
-              ...(token && { Authorization: `Bearer ${token}` }),
             },
           }
         );
@@ -85,16 +83,12 @@ export default function CitiesDropdown({
     if (!value) return;
     const fetchCityById = async () => {
       try {
-        const res  = await fetch(`/api/admin/cities/${value}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("bus_admin_token")}`,
-          },
+        const res = await fetch(`/api/cities/${value}`, {
         });
         const data: City = await res.json();
-        setSearch(data.name ?? "");
+        setSearch(data.name);
       } catch (err) {
-        console.error("City prefill error:", err);
+        console.error(err);
       }
     };
     fetchCityById();
