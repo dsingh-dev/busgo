@@ -23,7 +23,7 @@ export default function Home() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const dateStr = toDBFormat(date);
+    const dateStr = new Date(date).toISOString().split("T")[0];
 
     if (!from || !to || !dateStr) {
       toast({ title: "Please fill all fields", variant: "destructive" });
@@ -79,7 +79,7 @@ export default function Home() {
                     <Label className="text-xs font-medium text-muted-foreground">From</Label>
                     <CitiesDropdown
                       value={from}
-                      onChange={(city) => setFrom(city.id)}
+                      onChange={(fromCity) => setFrom(fromCity.id)}
                       placeholder="Select source city"
                     />
                   </div>
@@ -89,7 +89,7 @@ export default function Home() {
                     <Label className="text-xs font-medium text-muted-foreground">To</Label>
                     <CitiesDropdown
                       value={to}
-                      onChange={(city) => setTo(city.id)}
+                      onChange={(toCity) => setTo(toCity.id)}
                       placeholder="Select destination city"
                     />
                   </div>

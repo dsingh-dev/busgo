@@ -21,7 +21,7 @@ interface AdminAuthContextType {
   logout: () => void;
 }
 
-export const USER_KEY = "bus_admin_user";
+export const USER_KEY = "bus_user_token";
 export const TOKEN_KEY = "bus_admin_token";
 
 export const AdminAuthContext = createContext<AdminAuthContextType | null>(null);

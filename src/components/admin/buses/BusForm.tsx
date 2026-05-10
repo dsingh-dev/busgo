@@ -10,7 +10,8 @@ import { DateTimePicker } from "@/components/ui/dateTimePicker";
 import CitiesDropdown from "@/components/CitiesDropdown";
 
 interface Amenities {
-    amenityId: number;
+    id: number;
+    name: string;
 }
 
 interface BusFormModalProps {
@@ -81,7 +82,7 @@ const BusFormModal = ({ open, onClose, bus, onSuccess }: BusFormModalProps) => {
     totalSeats: bus.totalSeats,
     departure: bus.departure ? new Date(bus.departure) : null,
     arrival: bus.arrival ? new Date(bus.arrival) : null,
-    amenities: bus.amenities?.map(a => a.amenityId) ?? [],
+    amenities: bus.amenities?.map(a => a.id) ?? [],
   });
 
   useEffect(() => {
